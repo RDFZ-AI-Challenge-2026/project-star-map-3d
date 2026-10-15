@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------
+# Third-party raw downloads: re-creatable, and not part of the source project.
+# See data/README.md for the exact sources and versions.
+# ---------------------------------------------------------------------------
+
+# 32 MB decompressed HYG catalogue — regenerate with `python tools/gunzip_hyg.py`
+data/raw/hygdata_v40.csv
+
+# Packages already unpacked from the archives below
+data/raw/extracted/
+
+# Downloaded archives of third-party packages (three.js, d3-celestial, ...)
+data/raw/*.tgz
+data/raw/*.zip
+
+# ---------------------------------------------------------------------------
+# OS / editor noise
+# ---------------------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
