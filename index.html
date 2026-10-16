@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>星际距离 · 3D 真实恒星位置图</title>
+<link rel="stylesheet" href="./style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/jsm/",
+    "astronomy-engine": "./vendor/astronomy/astronomy.js"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="labels"></div>
+
+<header id="title">
+  <h1>星际距离</h1>
+  <p>距太阳 50 光年内的真实恒星位置 · 数据来自 HYG v4.0 星表</p>
+</header>
+
+<!-- 左上角菜单栏 -->
+<nav id="menubar">
+  <button class="mb-item" id="mb-search" type="button" title="搜索天体（按 / 也可以）">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
+         stroke-linecap="round" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.3 15.3 21 21" />
+    </svg>
+    <span>搜索</span>
+  </button>
+  <input type="search" id="search" placeholder="天体名称 / 星座 / 编号" autocomplete="off" />
+  <span class="kbd" title="按 / 聚焦搜索框">/</span>
+</nav>
+<div id="search-results" class="hidden"></div>
+
+<!-- ===================== 侧边栏 ===================== -->
+<button id="collapse-tab" type="button" title="收起 / 展开侧边栏" aria-label="收起或展开侧边栏">
+  <svg id="collapse-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M9 5l7 7-7 7" />
+  </svg>
+</button>
+
+<aside id="sidebar">
+  <section id="panel">
+    <div class="group">
+      <div class="label">时间 <b id="time-now">—</b></div>
+      <div class="time-row">
+        <input type="date" id="time-date" min="1800-01-01" max="2050-12-31" />
+        <input type="time" id="time-clock" step="1" />
+        <button id="time-apply" type="button" class="mini">确定</button>
+      </div>
+      <div class="seg wrap" id="speed-seg">
+        <button data-rate="1" class="on">实时</button>
+        <button data-rate="2">×2</button>
+        <button data-rate="4">×4</button>
+        <button data-rate="10">×10</button>
+        <button data-rate="60">×60</button>
+        <button data-rate="3600">×3600</button>
+      </div>
+      <div class="seg">
+        <button id="time-pause" type="button">暂停</button>
+        <button id="time-now-btn" type="button">回到现在</button>
+      </div>
+      <button id="goto-solar" class="wide" type="button">飞向太阳系</button>
+    </div>
+
+    <div class="group">
+      <div class="label">观察点 <b id="origin-name">太阳</b></div>
+      <div class="seg">
+        <button id="stand-here" disabled>站在这颗星上看</button>
+        <button id="back-to-sun" disabled>回到太阳</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="label">视角坐标系</div>
+      <div class="seg" id="frame-seg">
+        <button data-frame="galactic" class="on">银河坐标</button>
+        <button data-frame="equatorial">赤道坐标</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="label">距离显示方式 <span class="star">核心功能</span></div>
+      <div class="seg" id="mode-seg">
+        <button data-mode="true" class="on">真实距离</button>
+        <button data-mode="sphere">天球（只保留方向）</button>
+      </div>
+      <label class="check"><input type="checkbox" id="opt-lines" checked /> 连线：恒星到太阳</label>
+      <label class="check"><input type="checkbox" id="opt-orbits" checked /> 连线：太阳系轨道</label>
+    </div>
+
+    <div class="group">
+      <div class="label">显示范围 <b id="range-val">50 光年</b></div>
+      <input type="range" id="range" min="5" max="50" step="1" value="50" />
+    </div>
+
+    <div class="group">
+      <div class="label">亮度标定 <b id="gain-val">0.0</b></div>
+      <input type="range" id="gain" min="-2" max="5" step="0.5" value="0" />
+    </div>
+
+    <div class="group">
+      <div class="label">显示选项</div>
+      <div class="sub flush">
+        <div class="label sm">显示星等 <b id="maglim-val">全部</b></div>
+        <input type="range" id="maglim" min="-2" max="21" step="0.5" value="21" />
+      </div>
+      <label class="check"><input type="checkbox" id="opt-rings" checked /> 距离环（10/20/30/40/50 光年）</label>
+      <label class="check"><input type="checkbox" id="opt-grid" checked /> 参考网格面</label>
+      <div class="sub">
+        <div class="label sm">自定义透明度 <b id="grid-alpha-val">28%</b></div>
+        <input type="range" id="grid-alpha" min="0" max="100" step="1" value="28" />
+      </div>
+      <label class="check"><input type="checkbox" id="opt-names" checked /> 恒星名称</label>
+      <label class="check"><input type="checkbox" id="opt-bodies" checked /> 太阳系天体</label>
+      <label class="check"><input type="checkbox" id="opt-planets" checked /> 行星</label>
+      <label class="check"><input type="checkbox" id="opt-comets" checked /> 彗星</label>
+      <label class="check"><input type="checkbox" id="opt-glow" checked /> 恒星光晕</label>
+      <label class="check"><input type="checkbox" id="opt-bloom" checked /> 泛光溢出（bloom）</label>
+    </div>
+
+    <div class="group">
+      <button id="reset" class="wide" type="button">重置视角</button>
+    </div>
+
+    <div class="group">
+      <button id="help-btn" class="wide" type="button">使用说明</button>
+      <div id="help-body" class="hidden">
+        <h4>视图操作</h4>
+        <ul>
+          <li>左键拖拽：绕当前中心自由旋转（三个方向均可）</li>
+          <li>滚轮：缩放；右键拖拽：平移</li>
+          <li>点击天体：打开信息卡；<code>Esc</code> 关闭</li>
+          <li>信息卡上方圆形按钮：以该天体为旋转中心，距离读数不变</li>
+        </ul>
+
+        <h4>坐标系与距离</h4>
+        <ul>
+          <li>银河坐标：银道面水平展开，便于观察恒星在银河系中的分布</li>
+          <li>赤道坐标：HYG 星表的原始坐标系，Z 轴指向北天极</li>
+          <li>「真实距离」按星表坐标绘制；「天球」将全部恒星压至同一球面，仅保留方向</li>
+          <li>所有距离读数与连线一律以太阳为原点，不随视角中心改变</li>
+        </ul>
+
+        <h4>观察点</h4>
+        <p>将观察点移至某颗恒星后，该星位于原点，太阳与其余天体随之平移。
+           此时信息卡会额外给出「到观察点」的距离，即两颗恒星之间的实际间距。</p>
+
+        <h4>时间与太阳系</h4>
+        <p>时间仅影响太阳系天体；恒星距太阳均在 4 光年以上，位置变化在本图尺度下不可见。
+           时间可设定于 1800–2050 年，倍速自 ×1 至 ×3600。太阳系尺度（约 30 AU）远小于恒星间距
+           （1 光年 ≈ 63241 AU），使用「飞向太阳系」可将视点缩放至行星轨道尺度。</p>
+
+        <h4>数据与精度</h4>
+        <ul>
+          <li>恒星：HYG v4.0 星表（Hipparcos + 耶鲁亮星表 + Gliese），CC BY-SA 4.0</li>
+          <li>行星、月球、冥王星：astronomy-engine（VSOP87 + JPL）</li>
+          <li>矮行星、小行星：NASA/JPL 近似轨道根数</li>
+          <li>彗星：国际小行星中心（MPC）轨道根数</li>
+          <li>恒星大小按视星等标定，天体显示半径均非真实比例</li>
+          <li>距离误差随距离增大：近星约 1%，千光年量级可达数十个百分点</li>
+        </ul>
+
+        <h4>界面</h4>
+        <ul>
+          <li>侧边栏左缘箭头：收起或展开侧边栏</li>
+          <li>侧边栏底部白色横条：上下拖动调整侧边栏高度（最小为原高度的三分之一）</li>
+          <li>左上角菜单栏：按名称、星座或编号搜索天体</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div id="resize-handle" title="上下拖动调整侧边栏高度"><i></i></div>
+</aside>
+<!-- =================== 侧边栏结束 =================== -->
+
+<section id="info" class="hidden">
+  <button id="info-close" title="关闭">×</button>
+
+  <!-- 悬浮在星体信息卡片正上方的圆形按钮 -->
+  <button id="center-btn" title="以这颗天体为视角中心（距离仍然以太阳为准）">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+         stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.6" />
+      <circle cx="12" cy="12" r="2.1" fill="currentColor" stroke="none" />
+      <path d="M12 1.6v3.4M12 19v3.4M1.6 12h3.4M19 12h3.4" />
+    </svg>
+    <span class="cb-text" id="center-btn-text">居中</span>
+  </button>
+
+  <h2 id="info-name">—</h2>
+  <p id="info-sub" class="sub">—</p>
+  <dl id="info-list"></dl>
+</section>
+
+<footer id="hud">
+  <span id="hud-count">正在加载数据…</span>
+  <span class="dot">·</span>
+  <span id="hud-near"></span>
+  <span class="dot">·</span>
+  <span id="hud-center">中心：太阳</span>
+  <span class="dot">·</span>
+  <span id="hud-time">—</span>
+  <span class="dot">·</span>
+  <span id="hud-version">build —</span>
+</footer>
+
+<div id="loading">正在加载数据…</div>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>
