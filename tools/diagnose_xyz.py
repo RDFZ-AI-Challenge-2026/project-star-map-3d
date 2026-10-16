@@ -1,0 +1,25 @@
+import os, numpy as np, pandas as pd
+df = pd.read_csv(os.path.join("data","raw","hygdata_v40.csv"), low_memory=False)
+for c in ("dist","x","y","z","ra","dec","rarad","decrad","mag"):
+    df[c] = pd.to_numeric(df[c], errors="coerce")
+v = df["dist"].notna() & (df["dist"]>0) & (df["dist"]<100000)
+d = df[v].copy()
+rc = np.sqrt(d.x**2+d.y**2+d.z**2)
+d["err_cat"] = (rc - d.dist).abs()
+ra = np.radians(d.rarad.to_numpy()); dec = np.radians(d.decrad.to_numpy())
+rx = d.dist.to_numpy()*np.cos(dec)*np.cos(ra)
+ry = d.dist.to_numpy()*np.cos(dec)*np.sin(ra)
+rz = d.dist.to_numpy()*np.sin(dec)
+d["err_rec"] = np.sqrt((rx-d.x)**2+(ry-d.y)**2+(rz-d.z)**2)
+print("rows:", len(d))
+print("catalog |r - dist| : median %.4f  p99 %.4f  max %.2f" % (d.err_cat.median(), d.err_cat.quantile(.99), d.err_cat.max()))
+print("recomputed vs catalog: median %.4f  p99 %.4f  max %.2f" % (d.err_rec.median(), d.err_rec.quantile(.99), d.err_rec.max()))
+print("rows where catalog r disagrees with dist by >0.1 pc:", int((d.err_cat>0.1).sum()))
+print("rows where recomputed disagrees with catalog by >0.1 pc:", int((d.err_rec>0.1).sum()))
+bad = d.nlargest(8, "err_rec")[["id","hip","proper","ra","dec","rarad","decrad","dist","x","y","z","err_cat","err_rec"]]
+print(bad.to_string(index=False))
+print("--- does rarad/decrad ever disagree with ra/dec? ---")
+ra2 = np.radians(d.ra.to_numpy()*15.0); dec2 = np.radians(d.dec.to_numpy())
+dd = np.degrees(np.arccos(np.clip(np.sin(dec2)*np.sin(dec)+np.cos(dec2)*np.cos(dec)*np.cos(ra2-ra),-1,1)))*3600
+print("median arcsec diff: %.3f  p99: %.1f  max: %.0f" % (np.median(dd), np.percentile(dd,99), np.nanmax(dd)))
+print("rows with >60 arcsec ra/dec vs rarad/decrad mismatch:", int((dd>60).sum()))

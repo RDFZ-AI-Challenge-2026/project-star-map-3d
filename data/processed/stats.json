@@ -1,0 +1,173 @@
+{
+  "generated": "2026-10-16T08:44:01+00:00",
+  "source": "HYG v4.0 (astronexus/HYG-Database, hyg/CURRENT/hygdata_v40.csv.gz), CC BY-SA 4.0; star names from d3-celestial (BSD-3-Clause)",
+  "counts": {
+    "stars_with_distance": 109400,
+    "mag_le_6_5": 8714,
+    "mag_le_8": 39856,
+    "within_10_ly": 11,
+    "within_50_ly": 981,
+    "within_100_ly": 4059,
+    "within_1000_ly": 78806,
+    "named": 3151
+  },
+  "distance_ly": {
+    "min": 4.227,
+    "median": 633.3,
+    "max": 3229.3
+  },
+  "nearest_20": [
+    {
+      "name": "Proxima Centauri",
+      "mag": 11.01,
+      "dist_ly": 4.227
+    },
+    {
+      "name": "Rigil Kentaurus",
+      "mag": -0.01,
+      "dist_ly": 4.321
+    },
+    {
+      "name": "Toliman",
+      "mag": 1.35,
+      "dist_ly": 4.321
+    },
+    {
+      "name": "Barnard's Star",
+      "mag": 9.54,
+      "dist_ly": 5.948
+    },
+    {
+      "name": "Wolf 359",
+      "mag": 13.45,
+      "dist_ly": 7.797
+    },
+    {
+      "name": "Lalande 21185",
+      "mag": 7.49,
+      "dist_ly": 8.307
+    },
+    {
+      "name": "HYG 118080",
+      "mag": 12.7,
+      "dist_ly": 8.567
+    },
+    {
+      "name": "HYG 118079",
+      "mag": 12.57,
+      "dist_ly": 8.567
+    },
+    {
+      "name": "Sirius",
+      "mag": -1.44,
+      "dist_ly": 8.601
+    },
+    {
+      "name": "HYG 118441",
+      "mag": 8.44,
+      "dist_ly": 8.601
+    },
+    {
+      "name": "Ross 154",
+      "mag": 10.37,
+      "dist_ly": 9.686
+    },
+    {
+      "name": "Ross 248",
+      "mag": 12.29,
+      "dist_ly": 10.335
+    },
+    {
+      "name": "Ran",
+      "mag": 3.72,
+      "dist_ly": 10.49
+    },
+    {
+      "name": "Lacaille 9352",
+      "mag": 7.35,
+      "dist_ly": 10.685
+    },
+    {
+      "name": "Ross 128",
+      "mag": 11.12,
+      "dist_ly": 10.944
+    }
+  ],
+  "brightest_20": [
+    {
+      "name": "Sirius",
+      "mag": -1.44,
+      "dist_ly": 8.601
+    },
+    {
+      "name": "Canopus",
+      "mag": -0.62,
+      "dist_ly": 309.153
+    },
+    {
+      "name": "Arcturus",
+      "mag": -0.05,
+      "dist_ly": 36.717
+    },
+    {
+      "name": "Rigil Kentaurus",
+      "mag": -0.01,
+      "dist_ly": 4.321
+    },
+    {
+      "name": "Vega",
+      "mag": 0.03,
+      "dist_ly": 25.045
+    },
+    {
+      "name": "Capella",
+      "mag": 0.08,
+      "dist_ly": 42.803
+    },
+    {
+      "name": "Rigel",
+      "mag": 0.18,
+      "dist_ly": 862.847
+    },
+    {
+      "name": "Procyon",
+      "mag": 0.4,
+      "dist_ly": 11.462
+    },
+    {
+      "name": "Achernar",
+      "mag": 0.45,
+      "dist_ly": 139.442
+    },
+    {
+      "name": "Betelgeuse",
+      "mag": 0.45,
+      "dist_ly": 497.948
+    },
+    {
+      "name": "Hadar",
+      "mag": 0.61,
+      "dist_ly": 392.014
+    },
+    {
+      "name": "Altair",
+      "mag": 0.76,
+      "dist_ly": 16.73
+    },
+    {
+      "name": "Acrux",
+      "mag": 0.77,
+      "dist_ly": 321.97
+    },
+    {
+      "name": "Aldebaran",
+      "mag": 0.87,
+      "dist_ly": 66.644
+    },
+    {
+      "name": "HYG 118360",
+      "mag": 0.96,
+      "dist_ly": 42.199
+    }
+  ]
+}
